@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using MudBlazorFromScratch.Server.Models;
 
 namespace MudBlazorFromScratch.Server
 {
@@ -22,6 +24,9 @@ namespace MudBlazorFromScratch.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<MudBlazorDbContext>(options =>
+            options.UseSqlServer("Data Source=US-JDDS533;Initial Catalog=shanedb;Integrated Security=True"));
+
 
             services.AddControllersWithViews();
             services.AddRazorPages();
