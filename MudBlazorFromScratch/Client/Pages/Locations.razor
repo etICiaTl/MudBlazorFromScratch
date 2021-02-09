@@ -43,6 +43,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        locations = await Http.GetFromJsonAsync<Location[]>("sample-data/locations.json");
+        locations = await Http.GetFromJsonAsync<Location[]>("api/Location");
     }
 }
