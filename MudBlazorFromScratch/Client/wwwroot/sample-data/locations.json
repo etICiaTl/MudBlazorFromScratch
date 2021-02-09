@@ -1,0 +1,50 @@
+[
+  {
+    "locationId":  1,
+    "name": "Location 1",
+    "region": "NA",
+    "subregion": "NA",
+    "country": "USA",
+    "status": "Open"
+  },
+  {
+    "locationId": 2,
+    "name": "Location 2",
+    "region": "NA",
+    "subregion": "NA",
+    "country": "CANADA",
+    "status": "Closed"
+  },
+  {
+    "locationId": 3,
+    "name": "Location 3",
+    "region": "LATAM",
+    "subregion": "Brazil & Paraguay",
+    "country": "Brazil",
+    "status": "Open"
+  },
+  {
+    "locationId": 4,
+    "name": "Location 4",
+    "region": "NA",
+    "subregion": "NA",
+    "country": "USA",
+    "status": "Open"
+  },
+  {
+    "locationId": 5,
+    "name": "Location 5",
+    "region": "NA",
+    "subregion": "NA",
+    "country": "CANADA",
+    "status": "Open"
+  },
+  {
+    "locationId": 6,
+    "name": "Location 6",
+    "region": "LATAM",
+    "subregion": "Brazil & Paraguay",
+    "country": "Paraguay",
+    "status": "Open"
+  }
+]

@@ -1,0 +1,48 @@
+﻿@page "/location"
+@using MudBlazorFromScratch.Shared
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<h3>Location</h3>
+
+@if (locations == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>LocationId</th>
+                <th>Name</th>
+                <th>Region</th>
+                <th>Subregion</th>
+                <th>Country</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var location in locations)
+            {
+                <tr>
+                    <td>@location.LocationId</td>
+                    <td>@location.Name</td>
+                    <td>@location.Region</td>
+                    <td>@location.Subregion</td>
+                    <td>@location.Country</td>
+                    <td>@location.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Location[] locations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        locations = await Http.GetFromJsonAsync<Location[]>("sample-data/locations.json");
+    }
+}
