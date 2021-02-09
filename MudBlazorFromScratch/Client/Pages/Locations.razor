@@ -11,31 +11,22 @@
 }
 else
 {
-    <table id="example" class="display" style="width:100%">
-        <thead>
-            <tr>
-                <th>LocationId</th>
-                <th>Name</th>
-                <th>Region</th>
-                <th>Subregion</th>
-                <th>Country</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var location in locations)
-            {
-                <tr>
-                    <td>@location.LocationId</td>
-                    <td>@location.Name</td>
-                    <td>@location.Region</td>
-                    <td>@location.Subregion</td>
-                    <td>@location.Country</td>
-                    <td>@location.Status</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <MudTable Items="@locations" Hover="true" Breakpoint="Breakpoint.Sm">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Region</MudTh>
+            <MudTh>Subregion</MudTh>
+            <MudTh>Country</MudTh>
+            <MudTh>Status</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Region">@context.Region</MudTd>
+            <MudTd DataLabel="Subregion">@context.Subregion</MudTd>
+            <MudTd DataLabel="Country">@context.Country</MudTd>
+            <MudTd DataLabel="Status">@context.Status</MudTd>
+        </RowTemplate>
+    </MudTable>
 }
 
 @code {
