@@ -8,7 +8,20 @@
         </LayoutView>
     </NotFound>
 </Router>
-<MudThemeProvider />
+<MudThemeProvider Theme="MyCustomTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
+
+@code {
+    MudTheme MyCustomTheme = new MudTheme()
+    {
+        Palette = new Palette()
+        {
+            Primary = "#0072ce",
+            Secondary = "#00bf6f",
+            AppbarBackground = "#0072ce",
+            DrawerBackground = "#F5F5F5",
+        },
+    };
+}
 
