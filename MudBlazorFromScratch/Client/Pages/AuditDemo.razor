@@ -1,0 +1,520 @@
+﻿@page "/audit/new"
+@using MudBlazorFromScratch.Shared
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@*<h3>Location</h3>*@
+
+<MudGrid Style="padding:25px;">
+    @if (isLoading)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Style="width:100%;">
+        <MudItem Style="margin-bottom:25px;">
+            <MudText Typo="Typo.h4">Details:</MudText>
+            <MudGrid Style="margin-bottom:25px;">
+                <MudItem>
+                    <MudTextField T="string" Label="Primary Auditor" InputType="InputType.Text" />
+                </MudItem>
+                <MudItem>
+                    <MudSelect T="int" Label="Year" @bind-Value="selectedYear">
+                        @for (int i = (currentYear + 5); i > (currentYear - 5); i--)
+                        {
+                            <MudSelectItem Value="@i" />
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem>
+                    <MudDatePicker Label="Audit Date" @bind-Date="date" />
+                    @*<MudSelect T="string" Label="Status" Required="true" RequiredError="Status is required!">
+                    <MudSelectItem Value="@("Pre-Audit")" />
+                    <MudSelectItem Value="@("Started")" />
+                    <MudSelectItem Value="@("Unfinished")" />
+                    <MudSelectItem Value="@("Finished")" />
+                </MudSelect>*@
+                </MudItem>
+                <MudItem>
+                    <MudTextField T="string" Label="Duration" InputType="InputType.Text" />
+                </MudItem>
+            </MudGrid>
+            <MudGrid Style="margin-bottom:25px;">
+                @*<MudItem Class="my-auto">
+                    <MudText>Add Auditor:</MudText>
+                </MudItem>*@
+                <MudItem>
+                    <MudTextField T="string" Label="Auditor" InputType="InputType.Text" @bind-Value="newAuditor" />
+                </MudItem>
+                <MudItem Class="my-auto">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddAuditor">Add</MudButton>
+                </MudItem>
+            </MudGrid>
+            @if (auditors.Count > 0)
+            {
+                <MudGrid Style="margin-bottom:25px;">
+                    <MudItem>
+                        <MudText>Auditors:</MudText>
+                    </MudItem>
+                    <MudItem>
+                        <MudChipSet AllClosable="true" OnClose="RemoveAuditor">
+                            @foreach (var value in auditors)
+                            {
+                                <MudChip Text="@value"></MudChip>
+                            }
+                        </MudChipSet>
+                    </MudItem>
+                </MudGrid>
+            }
+            <MudGrid Style="margin-bottom:25px;">
+                @*<MudItem Class="my-auto">
+                    <MudText>Add Contact:</MudText>
+                </MudItem>*@
+                <MudItem>
+                    <MudTextField T="string" Label="Contact" InputType="InputType.Text" @bind-Value="newContact" />
+                </MudItem>
+                <MudItem Class="my-auto">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddContact">Add</MudButton>
+                </MudItem>
+            </MudGrid>
+            @if (contacts.Count > 0)
+            {
+                <MudGrid Style="margin-bottom:25px;">
+                    <MudItem>
+                        <MudText>Contacts:</MudText>
+                    </MudItem>
+                    <MudItem>
+                        <MudChipSet AllClosable="true" OnClose="RemoveContact">
+                            @foreach (var value in contacts)
+                            {
+                                <MudChip Text="@value"></MudChip>
+                            }
+                        </MudChipSet>
+                    </MudItem>
+                </MudGrid>
+            }
+
+        </MudItem>
+        <MudItem Style="margin-bottom:25px;">
+            <MudText Typo="Typo.h4">Country:</MudText>
+            <MudGrid>
+                <MudItem>
+                    <MudSelect T="string" Label="Country" MaxHeight="500" @bind-Value="countrySelected" Style="width:500px;">
+                        @foreach (var country in countries)
+                        {
+                            <MudSelectItem T="string" Value="@(country.CountryName)">@(country.CountryName)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddCountry">Add</MudButton>
+                </MudItem>
+            </MudGrid>
+            <MudGrid>
+                <MudItem>
+                    <MudSelect T="string" Label="Region" MaxHeight="500" SelectedValuesChanged="@(() => SelectionsChanged("region"))" @bind-Value="regionSelected" Style="width:240px;">
+                        @foreach (var region in regionsSelectData)
+                        {
+                            <MudSelectItem T="string" Value="@(region.RegionId.ToString())">@(region.RegionName)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem>
+                    <MudSelect T="string" Label="Subregion" MaxHeight="500" SelectedValuesChanged="@(() => SelectionsChanged("subregion"))" @bind-Value="subRegionSelected" Style="width:240px;">
+                        @foreach (var subregion in subRegionsSelectData)
+                        {
+                            <MudSelectItem T="string" Value="@(subregion.SubRegionId.ToString())">@(subregion.SubRegionName)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddCountryByGroup">Add</MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+        @if (values.Count > 0)
+        {
+         <MudItem Style="margin-bottom:25px;">
+            <MudGrid>
+                <MudItem>
+                    <MudText>Added Countries:</MudText>
+                </MudItem>
+                <MudItem>
+                    <MudChipSet AllClosable="true" OnClose="Closed">
+                        @foreach (var value in values)
+                        {
+                            <MudChip Text="@value"></MudChip>
+                        }
+                    </MudChipSet>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+        }
+        @if (platformMappings.Count > 0)
+        {
+         <MudItem Style="margin-bottom:25px;">
+            <MudText Typo="Typo.h4">Platform:</MudText>
+            @*<MudGrid>
+                <MudItem>
+                    <MudSelect T="string" Label="Platform" Required="true" RequiredError="Status is required!">
+                        <MudSelectItem Value="@("Conventional Seeds")" />
+                        <MudSelectItem Value="@("Crop Protection")" />
+                        <MudSelectItem Value="@("Traited Seeds")" />
+                    </MudSelect>
+                </MudItem>
+                <MudItem>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddCountryByGroup">Apply to Selected</MudButton>
+                </MudItem>
+            </MudGrid>
+            @foreach (var country in values)
+            {
+            <MudGrid Style="border:5px dotted black">
+                <MudItem Style="border:5px dotted red">
+                    <MudCheckBox @bind-Checked="@Basic_CheckBox1" Label="@country"></MudCheckBox>
+                </MudItem>
+            </MudGrid>
+            }
+            @foreach (var country in platformMappings)
+            {
+            <MudGrid Style="border:5px dotted black">
+                <MudText>@(country.CountryName)</MudText>
+                <MudItem Style="border:5px dotted red">
+                    <MudCheckBox @bind-Checked="@country.IsConventional"></MudCheckBox>
+                </MudItem>
+                <MudItem Style="border:5px dotted red">
+                    <MudCheckBox @bind-Checked="@country.IsCropProtection"></MudCheckBox>
+                </MudItem>
+                <MudItem Style="border:5px dotted red">
+                    <MudCheckBox @bind-Checked="@country.IsConventional"></MudCheckBox>
+                </MudItem>
+            </MudGrid>
+            }*@
+            <MudTable Items="@platformMappings" Hover="true" Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh>Country</MudTh>
+                    <MudTh>Conventional</MudTh>
+                    <MudTh>Crop Protection</MudTh>
+                    <MudTh>Traited</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Country">@context.CountryName</MudTd>
+                    <MudTd DataLabel="Conventional"><MudCheckBox @bind-Checked="@context.IsConventional"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Crop Protection"><MudCheckBox @bind-Checked="@context.IsCropProtection"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Traited"><MudCheckBox @bind-Checked="@context.IsTraited"></MudCheckBox></MudTd>
+                </RowTemplate>
+                @*<ChildRowContent>
+                    @if (context.ShowAdminPanel)
+                        {
+                        <MudTr>
+                            <MudTd>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="(() => EditLocation(context.LocationId))">Edit</MudButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Error" @onclick="(() => DeleteLocation(context.LocationId))">Delete</MudButton>
+                            </MudTd>
+                        </MudTr>
+                        }
+                </ChildRowContent>*@
+            </MudTable>
+        </MudItem>
+        }
+         @*@if (platformMappings.Count > 0)
+        {
+        <MudItem Style="margin-bottom:25px;">
+            <MudText Typo="Typo.h4">Findings:</MudText>
+            <MudSlider @bind-Value="value1" Min="0" Max="100" Style="width:500px;">Score: @value1.ToString()</MudSlider>
+            <MudGrid>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="string" Label="Overall Findings" Variant="Variant.Outlined" Lines="5" />
+                </MudItem>
+            </MudGrid>
+
+            @foreach (var platform in platformMappings)
+            {
+                if(platform.IsConventional)
+                {
+                    var label = platform.CountryName + " Conventional Findings";
+                    <MudGrid>
+                        <MudItem xs="12" sm="6" md="6">
+                            <MudTextField T="string" Label="@(label)" Variant="Variant.Outlined" Lines="5" />
+                        </MudItem>
+                    </MudGrid>
+                }
+                if (platform.IsCropProtection)
+                {
+                    var label = platform.CountryName + " Crop Protection Findings";
+                    <MudGrid>
+                        <MudItem xs="12" sm="6" md="6">
+                            <MudTextField T="string" Label="@(label)" Variant="Variant.Outlined" Lines="5" />
+                        </MudItem>
+                    </MudGrid>
+                }
+                if (platform.IsTraited)
+                {
+                    var label = platform.CountryName + " Traited Findings";
+                    <MudGrid>
+                        <MudItem xs="12" sm="6" md="6">
+                            <MudTextField T="string" Label="@(label)" Variant="Variant.Outlined" Lines="5" />
+                        </MudItem>
+                    </MudGrid>
+                }
+            }
+        </MudItem>
+        }*@       
+    </MudForm>
+    }
+    </MudGrid>
+
+@code {
+    private bool isLoading = true;
+    private int currentYear = DateTime.Now.Year;
+    private int selectedYear;
+    private int value1;
+    DateTime? date = DateTime.Today;
+
+    MudForm form;
+    bool success;
+    string[] errors = { };
+
+    IList<Region> regions = new List<Region>();
+    IList<Region> regionsSelectData = new List<Region>();
+    IList<SubRegion> subRegions = new List<SubRegion>();
+    IList<SubRegion> subRegionsSelectData = new List<SubRegion>();
+    IList<CountryAlt> countries = new List<CountryAlt>();
+    IList<RegionMappingAlt> regionMappingAlts = new List<RegionMappingAlt>();
+    List<string> values = new List<string>();
+    IList<Country> allCountries = new List<Country>();
+    IList<Country> countriesAdded = new List<Country>();
+    IList<PlatformMapping> platformMappings = new List<PlatformMapping>();
+    List<string> auditors = new List<string>();
+    string newAuditor = "";
+    List<string> contacts = new List<string>();
+    string newContact = "";
+
+    private string regionSelected;
+    private string subRegionSelected;
+    private string countrySelected;
+
+    public bool Basic_CheckBox1 { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        selectedYear = currentYear;
+        allCountries = await Http.GetFromJsonAsync<Country[]>("api/Countries");
+        await FillCountry();
+        isLoading = false;
+    }
+
+    //public void Closed(MudChip chip) => values.Remove(chip.Text);
+
+    public void Closed(MudChip chip) {
+        values.Remove(chip.Text);
+        //foreach (var c in countriesAdded)
+        //{
+        //    if (c.CountryName == chip.Text)
+        //    {
+        //        countriesAdded.Remove(c);
+        //    }
+        //}
+        var test = platformMappings;
+        platformMappings = platformMappings.Where(x => x.CountryName != chip.Text).ToList();
+        foreach (var c in platformMappings)
+        {
+            if (c.CountryName == chip.Text)
+            {
+                platformMappings.Remove(c);
+            }
+        }
+    }
+
+    private async void AddAuditor()
+    {
+        if (newAuditor != "")
+        {
+            auditors.Add(newAuditor);
+            newAuditor = "";
+        }
+    }
+
+    public void RemoveAuditor(MudChip chip)
+    {
+        auditors.Remove(chip.Text);
+    }
+
+    private async void AddContact()
+    {
+        if (newContact != "")
+        {
+            contacts.Add(newContact);
+            newContact = "";
+        }
+    }
+
+    public void RemoveContact(MudChip chip)
+    {
+        contacts.Remove(chip.Text);
+    }
+
+    private async void SelectionsChanged(string group)
+    {
+        if (group == "region")
+        {
+            if (subRegionSelected != "")
+            {
+                subRegionSelected = "";
+            }
+
+            if (regionSelected == "1")
+            {
+                subRegionsSelectData = subRegions.Where(x => x.SubRegionId < 3).ToList();
+            }
+            else if (regionSelected == "2")
+            {
+                subRegionsSelectData = subRegions.Where(x => x.SubRegionId > 2).ToList();
+            }
+            else
+            {
+                //error
+            }
+        }
+        else if (group == "subregion")
+        {
+            if (Int32.Parse(subRegionSelected) < 3)
+            {
+                regionSelected = "1";
+            }
+            else if (Int32.Parse(subRegionSelected) > 2)
+            {
+                regionSelected = "2";
+            }
+            else
+            {
+                //error
+            }
+        }
+        else
+        {
+            //error
+        }
+        //countrySelected = countries.Where(x => x.CountryName == countryNameSelected).FirstOrDefault();
+        //regionSelected = regions.Where(x => x.RegionName == regionNameSelected).FirstOrDefault();
+        //subRegionSelected = subRegions.Where(x => x.SubRegionName == subRegionNameSelected).FirstOrDefault();
+    }
+
+    private async void AddCountry()
+    {
+        if (countrySelected != "")
+        {
+            values.Add(countrySelected);
+
+            foreach (var c in allCountries)
+            {
+                if (c.CountryName == countrySelected)
+                {
+                    countriesAdded.Add(c);
+                    platformMappings.Add(new PlatformMapping { CountryName = c.CountryName });
+                }
+            }
+        }
+    }
+
+    private async void AddCountryByGroup()
+    {
+        if (subRegionSelected == "")
+        {
+            var regionCountries = countries.Where(x => x.RegionId == Int32.Parse(regionSelected)).ToList();
+            foreach (var rC in regionCountries)
+            {
+                values.Add(rC.CountryName);
+
+                foreach (var c in allCountries)
+                {
+                    if (c.CountryName == rC.CountryName)
+                    {
+                        countriesAdded.Add(c);
+                        platformMappings.Add(new PlatformMapping { CountryName = c.CountryName });
+                    }
+                }
+            }
+        }
+        else
+        {
+            var regionCountries = countries.Where(x => x.SubRegionId == Int32.Parse(subRegionSelected)).ToList();
+            foreach (var rC in regionCountries)
+            {
+                values.Add(rC.CountryName);
+
+                foreach (var c in allCountries)
+                {
+                    if (c.CountryName == rC.CountryName)
+                    {
+                        countriesAdded.Add(c);
+                        platformMappings.Add(new PlatformMapping { CountryName = c.CountryName });
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task FillCountry()
+    {
+        regions.Add(new Region { RegionId = 1, RegionName = "LATAM" });
+        regions.Add(new Region { RegionId = 2, RegionName = "EMEA" });
+        subRegions.Add(new SubRegion { SubRegionId = 1, SubRegionName = "Central America" });
+        subRegions.Add(new SubRegion { SubRegionId = 2, SubRegionName = "South America" });
+        subRegions.Add(new SubRegion { SubRegionId = 3, SubRegionName = "UK" });
+        subRegions.Add(new SubRegion { SubRegionId = 4, SubRegionName = "Russia" });
+        subRegions.Add(new SubRegion { SubRegionId = 5, SubRegionName = "Africa" });
+        countries.Add(new CountryAlt { CountryId = 1, CountryName = "Mexico", RegionId = 1, SubRegionId = 1 });
+        countries.Add(new CountryAlt { CountryId = 2, CountryName = "Costa Rica", RegionId = 1, SubRegionId = 1 });
+        countries.Add(new CountryAlt { CountryId = 3, CountryName = "Panama", RegionId = 1, SubRegionId = 1 });
+        countries.Add(new CountryAlt { CountryId = 4, CountryName = "Brazil", RegionId = 1, SubRegionId = 2 });
+        countries.Add(new CountryAlt { CountryId = 5, CountryName = "Chile", RegionId = 1, SubRegionId = 2 });
+        countries.Add(new CountryAlt { CountryId = 6, CountryName = "Peru", RegionId = 1, SubRegionId = 2 });
+        countries.Add(new CountryAlt { CountryId = 7, CountryName = "England", RegionId = 2, SubRegionId = 3 });
+        countries.Add(new CountryAlt { CountryId = 8, CountryName = "Scotland", RegionId = 2, SubRegionId = 3 });
+        countries.Add(new CountryAlt { CountryId = 9, CountryName = "Wales", RegionId = 2, SubRegionId = 3 });
+        countries.Add(new CountryAlt { CountryId = 10, CountryName = "Russia", RegionId = 2, SubRegionId = 4 });
+        countries.Add(new CountryAlt { CountryId = 11, CountryName = "Chad", RegionId = 2, SubRegionId = 5 });
+        countries.Add(new CountryAlt { CountryId = 12, CountryName = "Egypt", RegionId = 2, SubRegionId = 5 });
+        countries.Add(new CountryAlt { CountryId = 13, CountryName = "South Africa", RegionId = 2, SubRegionId = 5 });
+        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 1, RegionId = 1, SubRegionId = 1 });
+        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 2, RegionId = 1, SubRegionId = 2 });
+        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 3, RegionId = 2, SubRegionId = 3 });
+        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 4, RegionId = 2, SubRegionId = 4 });
+        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 5, RegionId = 2, SubRegionId = 5 });
+
+        subRegionsSelectData = subRegions;
+        regionsSelectData = regions;
+    }
+
+    public class CountryAlt
+    {
+        public int CountryId { get; set; }
+        public string CountryName { get; set; }
+        public int RegionId { get; set; }
+        public int SubRegionId { get; set; }
+    }
+
+    public class RegionMappingAlt
+    {
+        public int RegionMappingId { get; set; }
+        public int RegionId { get; set; }
+        public int SubRegionId { get; set; }
+    }
+
+    public class CountryPlatform
+    {
+        public string CountryName { get; set; }
+        public IList<string> Platforms { get; set; }
+        public bool IsSelected { get; set; } = false;
+    }
+
+    public class PlatformMapping
+    {
+        public string CountryName { get; set; }
+        public bool IsConventional { get; set; } = false;
+        public bool IsCropProtection { get; set; } = false;
+        public bool IsTraited { get; set; } = false;
+    }
+
+}

@@ -1,0 +1,159 @@
+﻿@page "/location/{locationId}"
+@using MudBlazorFromScratch.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+
+
+<MudGrid Style="margin:10px;padding-right:10px;">
+    <MudItem xs="12">
+        @if (isLoading)
+        {
+            <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        }
+        else
+        {
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField @bind-Value="locationNameEntered" Label="Location Name" Variant="Variant.Text"></MudTextField>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudSelect T="string" Label="Region" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="regionNameSelected">
+                        @foreach (var region in regions)
+                        {
+                            <MudSelectItem T="string" Value="@(region.RegionName)">@(region.RegionName)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudSelect T="string" Label="Subregion" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="subRegionNameSelected">
+                        @foreach (var subregion in subRegions)
+                        {
+                            <MudSelectItem T="string" Value="@(subregion.SubRegionName)">@(subregion.SubRegionName)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudSelect T="string" Label="Country" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="countryNameSelected">
+                        @foreach (var country in countries)
+                        {
+                            <MudSelectItem T="string" Value="@(country.CountryName)">@(country.CountryName)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudSelect T="string" Label="Status" MaxHeight="500" @bind-Value="statusSelected">
+                        <MudSelectItem Value="@("Status 1")" />
+                        <MudSelectItem Value="@("Open")" />
+                        <MudSelectItem Value="@("Closed")" />
+                        <MudSelectItem Value="@("Time-Warped")" />
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+            <br />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="EditLocation">Submit</MudButton>
+        }
+
+    </MudItem>
+</MudGrid>
+@*<h3>LocationAdd</h3>
+
+<div id="addRow" style="margin-bottom: 20px;">
+
+
+    @if (isLoading)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        
+    }
+
+
+</div>*@
+
+
+@code {
+    [Parameter]
+    public string LocationId { get; set; }
+
+    private Location location;
+
+    bool isLoading = true;
+
+
+
+    private Country[] countries;
+    private Region[] regions;
+    private SubRegion[] subRegions;
+
+    private int locationIdOfEdited;
+    private string locationNameEntered;
+    private string countryNameSelected;
+    private string regionNameSelected;
+    private string subRegionNameSelected;
+    private string statusSelected;
+
+    private Country countrySelected;
+    private Region regionSelected;
+    private SubRegion subRegionSelected;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var test = LocationId;
+        location = await Http.GetFromJsonAsync<Location>("api/Locations/" + LocationId);
+        locationIdOfEdited = Int32.Parse(LocationId);
+        locationNameEntered = location.Name;
+        countryNameSelected = location.Country;
+        regionNameSelected = location.Region;
+        subRegionNameSelected = location.Subregion;
+        statusSelected = location.Status;
+
+
+        await GetDataForSelects();
+        isLoading = false;
+    }
+
+    protected async Task GetDataForSelects()
+    {
+        countries = await Http.GetFromJsonAsync<Country[]>("api/Countries");
+        regions = await Http.GetFromJsonAsync<Region[]>("api/Regions");
+        subRegions = await Http.GetFromJsonAsync<SubRegion[]>("api/SubRegions");
+    }
+
+    private async void SelectionsChanged()
+    {
+        countrySelected = countries.Where(x => x.CountryName == countryNameSelected).FirstOrDefault();
+        regionSelected = regions.Where(x => x.RegionName == regionNameSelected).FirstOrDefault();
+        subRegionSelected = subRegions.Where(x => x.SubRegionName == subRegionNameSelected).FirstOrDefault();
+    }
+
+    private async void EditLocation()
+    {
+
+        Location editedLocation = new Location
+        {
+            LocationId = locationIdOfEdited,
+            Name = locationNameEntered,
+            Region = regionNameSelected,
+            Subregion = subRegionNameSelected,
+            Country = countryNameSelected,
+            Status = statusSelected
+        };
+
+        using var response = await Http.PutAsJsonAsync<Location>("api/Locations/" + locationIdOfEdited, editedLocation);
+
+
+        //isAdded = true;
+        //System.Threading.Thread.Sleep(3);
+
+        if (!(response == null))
+        {
+            NavigationManager.NavigateTo("/location");
+        }
+
+    }
+
+}

@@ -1,0 +1,54 @@
+﻿@page "/audit"
+@using MudBlazorFromScratch.Shared
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@*<h3>Location</h3>*@
+
+@if (audits == null)
+{
+    <div style="margin:10px;padding-right:10px;">
+        <p><em>Loading...</em></p>
+    </div>
+}
+else
+{
+    <MudTable Items="@audits" Hover="true" Breakpoint="Breakpoint.Sm" Style="margin:10px;padding-right:10px;">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Countries</MudTh>
+            <MudTh>Primary Auditor</MudTh>
+            <MudTh>Audit Date</MudTh>
+            <MudTh>Duration</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.AuditId</MudTd>
+            <MudTd DataLabel="Countries">@context.Countries</MudTd>
+            <MudTd DataLabel="Primary Auditor">@context.PrimaryAuditor</MudTd>
+            <MudTd DataLabel="Audit Date">@context.AuditDate</MudTd>
+            <MudTd DataLabel="Duration">@context.Duration</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    IList<AuditAlt> audits = new List<AuditAlt>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        audits.Add(new AuditAlt { AuditId = 1001, Countries = "Mexico; Costa Rica; Panama; Brazil;", PrimaryAuditor = "Betty Summers", Duration = "5", AuditDate = "3/2/2021" });
+        audits.Add(new AuditAlt { AuditId = 1002, Countries = "Chile; Peru;", PrimaryAuditor = "Mary Hogan", Duration = "1", AuditDate = "3/3/2021" });
+        audits.Add(new AuditAlt { AuditId = 1003, Countries = "England; Scotland; Wales", PrimaryAuditor = "Pearl Valdez", Duration = "7", AuditDate = "4/7/2021" });
+        audits.Add(new AuditAlt { AuditId = 1004, Countries = "Chad; Egypt; South Africa;", PrimaryAuditor = "Molly Kramer", Duration = "3", AuditDate = "1/7/2021" });
+        audits.Add(new AuditAlt { AuditId = 1005, Countries = "Russia", PrimaryAuditor = "Hafsa Hess", Duration = "8", AuditDate = "10/10/2021" });
+    }
+
+    public class AuditAlt
+    {
+        public int AuditId { get; set; }
+        public string Countries { get; set; }
+        public string PrimaryAuditor { get; set; }
+        public string Duration { get; set; }
+        public string AuditDate { get; set; }
+    }
+}

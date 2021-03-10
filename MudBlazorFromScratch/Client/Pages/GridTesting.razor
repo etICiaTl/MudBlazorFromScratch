@@ -1,0 +1,276 @@
+﻿@page "/gridtesting"
+@using MudBlazorFromScratch.Shared
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-3 px-0" Style="height: calc(100vh - 76px);background-color:lightcoral;">
+    @*MudContainer Class info: https://mudblazor.com/features/spacing*@
+    @if (isLoading)
+    {
+        <MudGrid Style="background-color:gray;height: 200px;">
+            <MudItem Style="background-color:cornflowerblue;height: 100px;">
+                @*<MudProgressCircular Color="Color.Secondary" Indeterminate="true" />*@
+                <!--<MudOverlay Visible="true" DarkBackground="true" Absolute="true">-->
+                    @*<MudProgressCircular Color="Color.Secondary" Indeterminate="true" />*@
+                <!--</MudOverlay>-->
+            </MudItem>
+        </MudGrid>
+        
+        <!--<MudGrid Style="height: calc(100vh - 76px);">
+            <MudItem Class="mx-auto pa-auto">-->
+                @*<MudProgressCircular Color="Color.Default" Indeterminate="true" />*@
+
+            <!--</MudItem>
+        </MudGrid>-->
+
+    }
+    else
+    {
+        <MudGrid Class="mt-6 mb-3 px-3">
+            <MudItem xs="12" sm="12" md="12">
+                <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="6">
+                <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="6">
+                <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudPaper Elevation="2" Class="pa-4" Style="height: 100%"></MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+
+</MudContainer>
+
+@*
+<MudOverlay Visible="isVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+    *@
+
+
+<!--<MudContainer Style="background-color:deepskyblue;">
+    <MudGrid>
+        <MudItem>
+            <MudGrid>
+                <MudItem>
+                    <MudGrid Spacing="2" Justify="Justify.Center">
+                        <MudItem Style="background-color:green;">
+                            <MudPaper>
+                                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem>
+                            <MudPaper>
+                                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem>
+                            <MudPaper>
+                                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                            </MudPaper>
+                        </MudItem>
+                    </MudGrid>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<MudItem Style="background-color:red;">
+    <MudGrid>
+        <MudItem>
+            <MudGrid Spacing="2" Justify="Justify.Center">
+                <MudItem Style="background-color:green;">
+                    <MudPaper>
+                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                    </MudPaper>
+                </MudItem>
+                <MudItem>
+                    <MudPaper>
+                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                    </MudPaper>
+                </MudItem>
+                <MudItem>
+                    <MudPaper>
+                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+</MudItem>
+
+<MudGrid Style="background-color:chocolate;height:100px;">-->
+    @*<MudItem xs="12">
+        <MudGrid Spacing="2" Justify="Justify.Center">
+            <MudItem Style="background-color:green;" xs="3">
+                <MudPaper>
+                    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="3">
+                <MudPaper>
+                    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="3">
+                <MudPaper>
+                    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudItem>*@
+<!--</MudGrid>-->
+
+<!--<MudGrid>
+    <MudItem xs="12" Style="background-color:red;">
+        @if (isLoading)
+        {-->
+            @*<MudPaper>
+                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+            </MudPaper>*@
+            <!--<MudGrid Spacing="1" Justify="Justify.Center" >
+                <MudItem>
+                    <MudPaper>
+                        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+            
+        }
+        else
+        {
+            <MudTable Items="@locationDTOs" Hover="true" Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh></MudTh>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Region</MudTh>
+                    <MudTh>Subregion</MudTh>
+                    <MudTh>Country</MudTh>
+                    <MudTh>Status</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.LocationId))">Admin Tools</MudButton></MudTd>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Region">@context.Region</MudTd>
+                    <MudTd DataLabel="Subregion">@context.Subregion</MudTd>
+                    <MudTd DataLabel="Country">@context.Country</MudTd>
+                    <MudTd DataLabel="Status">@context.Status</MudTd>
+                </RowTemplate>
+                <ChildRowContent>
+                    @if (context.ShowAdminPanel)
+                        {
+                        <MudTr>
+                            <MudTd>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="(() => EditLocation(context.LocationId))">Edit</MudButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Error" @onclick="(() => DeleteLocation(context.LocationId))">Delete</MudButton>
+                            </MudTd>
+                        </MudTr>
+                        }
+                </ChildRowContent>
+            </MudTable>
+            <br />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary">Submit</MudButton>
+        }
+
+    </MudItem>
+</MudGrid>-->
+
+@code {
+    bool isLoading = true;
+
+    private Location[] locations;
+    private IEnumerable<LocationDTO> locationDTOs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        locations = await Http.GetFromJsonAsync<Location[]>("api/Locations");
+        locationDTOs = ToDTO(locations);
+        //isLoading = false;
+    }
+
+    private void ShowBtnPress(int nr)
+    {
+        LocationDTO tmpLocation = locationDTOs.First(f => f.LocationId == nr);
+        tmpLocation.ShowAdminPanel = !tmpLocation.ShowAdminPanel;
+    }
+
+    private void EditLocation(int locationId)
+    {
+        var url = "/location/" + locationId;
+        NavigationManager.NavigateTo(url);
+    }
+
+    private void DeleteLocation(int locationId)
+    {
+        var test = locationId;
+        locationDTOs = locationDTOs.Where(x => x.LocationId != locationId).ToList();
+    }
+
+    private LocationDTO[] ToDTO(Location[] locations)
+    {
+        List<LocationDTO> locationDTOs = new List<LocationDTO>();
+
+        foreach (var location in locations)
+        {
+            LocationDTO newLocationDTO = new LocationDTO
+            {
+                LocationId = location.LocationId,
+                Name = location.Name,
+                Region = location.Region,
+                Subregion = location.Subregion,
+                Country = location.Country,
+                Status = location.Status,
+                ShowAdminPanel = false
+            };
+
+            locationDTOs.Add(newLocationDTO);
+        }
+
+        return locationDTOs.ToArray();
+    }
+
+    private Location[] FromDTO(LocationDTO[] locationDTOs)
+    {
+        List<Location> locations = new List<Location>();
+
+        foreach (var location in locationDTOs)
+        {
+            Location newLocation = new Location
+            {
+                LocationId = location.LocationId,
+                Name = location.Name,
+                Region = location.Region,
+                Subregion = location.Subregion,
+                Country = location.Country,
+                Status = location.Status
+            };
+
+            locations.Add(newLocation);
+        }
+
+        return locations.ToArray();
+    }
+}

@@ -1,0 +1,195 @@
+﻿@page "/locationAlt"
+@using MudBlazorFromScratch.Shared
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+@inject ISnackbar Snackbar
+
+@if (locations == null)
+{
+    <div style="margin:10px;padding-right:10px;">
+        <p><em>Loading...</em></p>
+    </div>
+}
+else
+{
+    <MudTable Items="@locationDTOs" Hover="true" @bind-SelectedItem="selectedItem" CommitEditTooltip="Commit Edit">
+        <HeaderContent>
+            <MudTh></MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Region</MudTh>
+            <MudTh>Subregion</MudTh>
+            <MudTh>Country</MudTh>
+            <MudTh>Status</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.LocationId))">Admin Tools</MudButton></MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Region">@context.Region</MudTd>
+            <MudTd DataLabel="Subregion">@context.Subregion</MudTd>
+            <MudTd DataLabel="Country">@context.Country</MudTd>
+            <MudTd DataLabel="Status">@context.Status</MudTd>
+        </RowTemplate>
+        <RowEditingTemplate>
+            <MudTd>
+                <MudTextField @bind-Value="locationNameEntered" Label="Location Name" Variant="Variant.Text"></MudTextField>
+            </MudTd>
+            <MudTd>
+                @*<MudSelect T="string" Label="Region" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="regionNameSelected">
+                    @foreach (var region in regions)
+                        {
+                        <MudSelectItem T="string" Value="@(region.RegionName)">@(region.RegionName)</MudSelectItem>
+                        }
+                </MudSelect>*@
+            </MudTd>
+            <MudTd>
+                @*<MudSelect T="string" Label="Subregion" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="subRegionNameSelected">
+                    @foreach (var subregion in subRegions)
+                        {
+                        <MudSelectItem T="string" Value="@(subregion.SubRegionName)">@(subregion.SubRegionName)</MudSelectItem>
+                        }
+                </MudSelect>*@
+            </MudTd>
+            <MudTd>
+                @*<MudSelect T="string" Label="Country" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="countryNameSelected">
+                    @foreach (var country in countries)
+                        {
+                        <MudSelectItem T="string" Value="@(country.CountryName)">@(country.CountryName)</MudSelectItem>
+                        }
+                </MudSelect>*@
+            </MudTd>
+            <MudTd>
+                @*<MudSelect T="string" Label="Status" MaxHeight="500" @bind-Value="statusSelected">
+                    <MudSelectItem Value="@("Status 1")" />
+                    <MudSelectItem Value="@("Open")" />
+                    <MudSelectItem Value="@("Closed")" />
+                    <MudSelectItem Value="@("Time-Warped")" />
+                </MudSelect>*@
+            </MudTd>
+        </RowEditingTemplate>
+        @*<ChildRowContent>
+                @if (context.ShowAdminPanel)
+                    {
+                    <MudTr>
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="(() => EditLocation(context.LocationId))">Edit</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" @onclick="(() => DeleteLocation(context.LocationId))">Delete</MudButton>
+                        </MudTd>
+                    </MudTr>
+                    }
+            </ChildRowContent>*@
+    </MudTable>
+}
+
+@code {
+    private LocationDTO selectedItem = null;
+
+    private Country[] countries;
+    private Region[] regions;
+    private SubRegion[] subRegions;
+
+    private string[] countryNameArray;
+    private string[] regionNameArray;
+    private string[] subRegionNameArray;
+
+    private string locationNameEntered;
+    private string countryNameSelected;
+    private string regionNameSelected;
+    private string subRegionNameSelected;
+    private string statusSelected;
+
+    private Country countrySelected;
+    private Region regionSelected;
+    private SubRegion subRegionSelected;
+
+    private Location[] locations;
+    private IEnumerable<LocationDTO> locationDTOs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //base.OnInitialized();
+        //samplecmd = new Utilities.SampleCommand(SampleCommand_Executed);
+
+        locations = await Http.GetFromJsonAsync<Location[]>("api/Locations");
+        locationDTOs = ToDTO(locations);
+        countries = await Http.GetFromJsonAsync<Country[]>("api/Countries");
+        regions = await Http.GetFromJsonAsync<Region[]>("api/Regions");
+        subRegions = await Http.GetFromJsonAsync<SubRegion[]>("api/SubRegions");
+    }
+
+    private void ShowBtnPress(int nr)
+    {
+        LocationDTO tmpLocation = locationDTOs.First(f => f.LocationId == nr);
+        tmpLocation.ShowAdminPanel = !tmpLocation.ShowAdminPanel;
+    }
+
+    private void LocationEdited()
+    {
+        var test = true;
+    }
+
+    private void EditLocation(int locationId)
+    {
+        var url = "/location/" + locationId;
+        NavigationManager.NavigateTo(url);
+    }
+
+    private void DeleteLocation(int locationId)
+    {
+        var test = locationId;
+        locationDTOs = locationDTOs.Where(x => x.LocationId != locationId).ToList();
+    }
+
+    private LocationDTO[] ToDTO(Location[] locations)
+    {
+        List<LocationDTO> locationDTOs = new List<LocationDTO>();
+
+        foreach (var location in locations)
+        {
+            LocationDTO newLocationDTO = new LocationDTO
+            {
+                LocationId = location.LocationId,
+                Name = location.Name,
+                Region = location.Region,
+                Subregion = location.Subregion,
+                Country = location.Country,
+                Status = location.Status,
+                ShowAdminPanel = false
+            };
+
+            locationDTOs.Add(newLocationDTO);
+        }
+
+        return locationDTOs.ToArray();
+    }
+
+    private Location[] FromDTO(LocationDTO[] locationDTOs)
+    {
+        List<Location> locations = new List<Location>();
+
+        foreach (var location in locationDTOs)
+        {
+            Location newLocation = new Location
+            {
+                LocationId = location.LocationId,
+                Name = location.Name,
+                Region = location.Region,
+                Subregion = location.Subregion,
+                Country = location.Country,
+                Status = location.Status
+            };
+
+            locations.Add(newLocation);
+        }
+
+        return locations.ToArray();
+    }
+
+    //private Utilities.SampleCommand samplecmd;
+
+    //private void SampleCommand_Executed(object parameter)
+    //{
+    //    Snackbar.Add($"Commit Edit Command Executed for parameter '{parameter.ToString()}'");
+    //}
+}

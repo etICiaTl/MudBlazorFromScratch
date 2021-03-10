@@ -1,0 +1,148 @@
+﻿@page "/location/add"
+@using MudBlazorFromScratch.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+
+<div id="addRow" style="margin:10px;padding-right:10px;">
+
+
+    @if (isLoading)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="4">
+                <MudTextField @bind-Value="locationNameEntered" Label="Location Name" Variant="Variant.Text"></MudTextField>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudSelect T="string" Label="Region" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="regionNameSelected">
+                    @foreach (var region in regions)
+                    {
+                        <MudSelectItem T="string" Value="@(region.RegionName)">@(region.RegionName)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudSelect T="string" Label="Subregion" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="subRegionNameSelected">
+                    @foreach (var subregion in subRegions)
+                    {
+                        <MudSelectItem T="string" Value="@(subregion.SubRegionName)">@(subregion.SubRegionName)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudSelect T="string" Label="Country" MaxHeight="500" SelectedValuesChanged="@SelectionsChanged" @bind-Value="countryNameSelected">
+                    @foreach (var country in countries)
+                    {
+                        <MudSelectItem T="string" Value="@(country.CountryName)">@(country.CountryName)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudSelect T="string" Label="Status" MaxHeight="500" @bind-Value="statusSelected">
+                    <MudSelectItem Value="@("Status 1")" />
+                    <MudSelectItem Value="@("Open")" />
+                    <MudSelectItem Value="@("Closed")" />
+                    <MudSelectItem Value="@("Time-Warped")" />
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+        <br />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddRowTest">Submit</MudButton>
+    }
+
+
+</div>
+
+
+@code {
+    bool isLoading = true;
+    //string locationName;
+    //string subregion;
+    //string region;
+    //string country;
+    //string status;
+
+    //private bool isAdded = false;
+    //private string addRowVisibility => isAdded ? "block" : "hidden";
+    //private bool isRedirecting;
+
+
+
+
+    private Country[] countries;
+    private Region[] regions;
+    private SubRegion[] subRegions;
+
+    private string[] countryNameArray;
+    private string[] regionNameArray;
+    private string[] subRegionNameArray;
+
+    private string locationNameEntered;
+    private string countryNameSelected;
+    private string regionNameSelected;
+    private string subRegionNameSelected;
+    private string statusSelected;
+
+    private Country countrySelected;
+    private Region regionSelected;
+    private SubRegion subRegionSelected;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDataForSelects();
+        await CreateStringArraysForSelects();
+        isLoading = false;
+    }
+
+    protected async Task GetDataForSelects()
+    {
+        countries = await Http.GetFromJsonAsync<Country[]>("api/Countries");
+        regions = await Http.GetFromJsonAsync<Region[]>("api/Regions");
+        subRegions = await Http.GetFromJsonAsync<SubRegion[]>("api/SubRegions");
+    }
+
+    protected async Task CreateStringArraysForSelects()
+    {
+        countryNameArray = countries.Select(x => x.CountryName).ToArray();
+        regionNameArray = regions.Select(x => x.RegionName).ToArray();
+        subRegionNameArray = subRegions.Select(x => x.SubRegionName).ToArray();
+    }
+
+    private async void SelectionsChanged()
+    {
+        countrySelected = countries.Where(x => x.CountryName == countryNameSelected).FirstOrDefault();
+        regionSelected = regions.Where(x => x.RegionName == regionNameSelected).FirstOrDefault();
+        subRegionSelected = subRegions.Where(x => x.SubRegionName == subRegionNameSelected).FirstOrDefault();
+    }
+
+    private async void AddRowTest()
+    {
+
+        Location newLocation = new Location
+        {
+            Name = locationNameEntered,
+            Region = regionNameSelected,
+            Subregion = subRegionNameSelected,
+            Country = countryNameSelected,
+            Status = statusSelected
+        };
+
+        using var response = await Http.PostAsJsonAsync<Location>("api/Locations", newLocation);
+
+
+        //isAdded = true;
+        //System.Threading.Thread.Sleep(3);
+
+        if (!(response == null))
+        {
+            NavigationManager.NavigateTo("/location");
+        }
+
+    }
+
+}

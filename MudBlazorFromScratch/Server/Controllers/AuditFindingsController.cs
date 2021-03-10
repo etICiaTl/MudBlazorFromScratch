@@ -12,47 +12,47 @@ namespace MudBlazorFromScratch.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LocationController : ControllerBase
+    public class AuditFindingsController : ControllerBase
     {
         private readonly MudBlazorDbContext _context;
 
-        public LocationController(MudBlazorDbContext context)
+        public AuditFindingsController(MudBlazorDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Locations
+        // GET: api/AuditFindings
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Location>>> GetLocations()
+        public async Task<ActionResult<IEnumerable<AuditFinding>>> GetAuditFinding()
         {
-            return await _context.Location.ToListAsync();
+            return await _context.AuditFinding.ToListAsync();
         }
 
-        // GET: api/Locations/5
+        // GET: api/AuditFindings/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Location>> GetLocation(int id)
+        public async Task<ActionResult<AuditFinding>> GetAuditFinding(int id)
         {
-            var location = await _context.Location.FindAsync(id);
+            var auditFinding = await _context.AuditFinding.FindAsync(id);
 
-            if (location == null)
+            if (auditFinding == null)
             {
                 return NotFound();
             }
 
-            return location;
+            return auditFinding;
         }
 
-        // PUT: api/Locations/5
+        // PUT: api/AuditFindings/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLocation(int id, Location location)
+        public async Task<IActionResult> PutAuditFinding(int id, AuditFinding auditFinding)
         {
-            if (id != location.LocationId)
+            if (id != auditFinding.AuditFindingId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(location).State = EntityState.Modified;
+            _context.Entry(auditFinding).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace MudBlazorFromScratch.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!LocationExists(id))
+                if (!AuditFindingExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace MudBlazorFromScratch.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Locations
+        // POST: api/AuditFindings
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Location>> PostLocation(Location location)
+        public async Task<ActionResult<AuditFinding>> PostAuditFinding(AuditFinding auditFinding)
         {
-            _context.Location.Add(location);
+            _context.AuditFinding.Add(auditFinding);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetLocation", new { id = location.LocationId }, location);
+            return CreatedAtAction("GetAuditFinding", new { id = auditFinding.AuditFindingId }, auditFinding);
         }
 
-        // DELETE: api/Locations/5
+        // DELETE: api/AuditFindings/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLocation(int id)
+        public async Task<IActionResult> DeleteAuditFinding(int id)
         {
-            var location = await _context.Location.FindAsync(id);
-            if (location == null)
+            var auditFinding = await _context.AuditFinding.FindAsync(id);
+            if (auditFinding == null)
             {
                 return NotFound();
             }
 
-            _context.Location.Remove(location);
+            _context.AuditFinding.Remove(auditFinding);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool LocationExists(int id)
+        private bool AuditFindingExists(int id)
         {
-            return _context.Location.Any(e => e.LocationId == id);
+            return _context.AuditFinding.Any(e => e.AuditFindingId == id);
         }
     }
 }

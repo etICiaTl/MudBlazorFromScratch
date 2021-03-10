@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudBlazorFromScratch.Server", "MudBlazorFromScratch\Server\MudBlazorFromScratch.Server.csproj", "{D07C12ED-924F-4313-B1E4-A711E38F05B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudBlazorFromScratch.Server", "MudBlazorFromScratch\Server\MudBlazorFromScratch.Server.csproj", "{D07C12ED-924F-4313-B1E4-A711E38F05B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudBlazorFromScratch.Client", "MudBlazorFromScratch\Client\MudBlazorFromScratch.Client.csproj", "{DBA6D068-CFEE-4E3C-9D31-57B821C9E281}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudBlazorFromScratch.Client", "MudBlazorFromScratch\Client\MudBlazorFromScratch.Client.csproj", "{DBA6D068-CFEE-4E3C-9D31-57B821C9E281}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudBlazorFromScratch.Shared", "MudBlazorFromScratch\Shared\MudBlazorFromScratch.Shared.csproj", "{EAE034B1-67BB-47E6-A6BA-CF913F0F3228}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudBlazorFromScratch.Shared", "MudBlazorFromScratch\Shared\MudBlazorFromScratch.Shared.csproj", "{EAE034B1-67BB-47E6-A6BA-CF913F0F3228}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
