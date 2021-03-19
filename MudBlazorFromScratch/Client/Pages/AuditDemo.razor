@@ -17,7 +17,8 @@
             <MudText Typo="Typo.h4">Details:</MudText>
             <MudGrid Style="margin-bottom:25px;">
                 <MudItem>
-                    <MudTextField T="string" Label="Primary Auditor" InputType="InputType.Text" />
+                    <MudAutocomplete T="string" Label="Primary Auditor" @bind-Value="primaryAuditorSelected" SearchFunc="@PrimaryAuditorSearch" ResetValueOnEmptyText="true" CoerceText="true" />
+                    @*<MudTextField T="string" Label="Primary Auditor" InputType="InputType.Text" />*@
                 </MudItem>
                 <MudItem>
                     <MudSelect T="int" Label="Year" @bind-Value="selectedYear">
@@ -29,29 +30,21 @@
                 </MudItem>
                 <MudItem>
                     <MudDatePicker Label="Audit Date" @bind-Date="date" />
-                    @*<MudSelect T="string" Label="Status" Required="true" RequiredError="Status is required!">
-                    <MudSelectItem Value="@("Pre-Audit")" />
-                    <MudSelectItem Value="@("Started")" />
-                    <MudSelectItem Value="@("Unfinished")" />
-                    <MudSelectItem Value="@("Finished")" />
-                </MudSelect>*@
                 </MudItem>
                 <MudItem>
-                    <MudTextField T="string" Label="Duration" InputType="InputType.Text" />
+                    <MudTextField T="string" Label="Duration" @bind-Value="duration" InputType="InputType.Text" />
                 </MudItem>
             </MudGrid>
             <MudGrid Style="margin-bottom:25px;">
-                @*<MudItem Class="my-auto">
-                    <MudText>Add Auditor:</MudText>
-                </MudItem>*@
                 <MudItem>
-                    <MudTextField T="string" Label="Auditor" InputType="InputType.Text" @bind-Value="newAuditor" />
+                    <MudAutocomplete T="string" Label="Auditor" @bind-Value="auditorSelected" SearchFunc="@AuditorSearch" ResetValueOnEmptyText="true" CoerceText="true" />
+                    @*<MudTextField T="string" Label="Auditor" InputType="InputType.Text" @bind-Value="newAuditor" />*@
                 </MudItem>
                 <MudItem Class="my-auto">
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddAuditor">Add</MudButton>
                 </MudItem>
             </MudGrid>
-            @if (auditors.Count > 0)
+            @if (auditorsSelected.Count > 0)
             {
                 <MudGrid Style="margin-bottom:25px;">
                     <MudItem>
@@ -59,26 +52,24 @@
                     </MudItem>
                     <MudItem>
                         <MudChipSet AllClosable="true" OnClose="RemoveAuditor">
-                            @foreach (var value in auditors)
+                            @foreach (var value in auditorsSelected)
                             {
-                                <MudChip Text="@value"></MudChip>
+                                <MudChip Text="@(value.Name)"></MudChip>
                             }
                         </MudChipSet>
                     </MudItem>
                 </MudGrid>
             }
             <MudGrid Style="margin-bottom:25px;">
-                @*<MudItem Class="my-auto">
-                    <MudText>Add Contact:</MudText>
-                </MudItem>*@
                 <MudItem>
-                    <MudTextField T="string" Label="Contact" InputType="InputType.Text" @bind-Value="newContact" />
+                    <MudAutocomplete T="string" Label="Contact" @bind-Value="contactSelected" SearchFunc="@ContactSearch" ResetValueOnEmptyText="true" CoerceText="true" />
+                    @*<MudTextField T="string" Label="Contact" InputType="InputType.Text" @bind-Value="newContact" />*@
                 </MudItem>
                 <MudItem Class="my-auto">
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddContact">Add</MudButton>
                 </MudItem>
             </MudGrid>
-            @if (contacts.Count > 0)
+            @if (contactsSelected.Count > 0)
             {
                 <MudGrid Style="margin-bottom:25px;">
                     <MudItem>
@@ -86,9 +77,9 @@
                     </MudItem>
                     <MudItem>
                         <MudChipSet AllClosable="true" OnClose="RemoveContact">
-                            @foreach (var value in contacts)
+                            @foreach (var value in contactsSelected)
                             {
-                                <MudChip Text="@value"></MudChip>
+                                <MudChip Text="@(value.Name)"></MudChip>
                             }
                         </MudChipSet>
                     </MudItem>
@@ -100,21 +91,21 @@
             <MudText Typo="Typo.h4">Country:</MudText>
             <MudGrid>
                 <MudItem>
-                    <MudSelect T="string" Label="Country" MaxHeight="500" @bind-Value="countrySelected" Style="width:500px;">
-                        @foreach (var country in countries)
+                    <MudSelect T="string" Label="Country" MaxHeight="500" @bind-Value="countrySelected" SelectedValuesChanged="CountrySelectionChanged" Style="width:500px;">
+                        @foreach (var country in countriesList)
                         {
                             <MudSelectItem T="string" Value="@(country.CountryName)">@(country.CountryName)</MudSelectItem>
                         }
                     </MudSelect>
                 </MudItem>
                 <MudItem>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddCountry">Add</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddCountry" Disabled="@isCountryAddButtonDisabled">Add</MudButton>
                 </MudItem>
             </MudGrid>
             <MudGrid>
                 <MudItem>
                     <MudSelect T="string" Label="Region" MaxHeight="500" SelectedValuesChanged="@(() => SelectionsChanged("region"))" @bind-Value="regionSelected" Style="width:240px;">
-                        @foreach (var region in regionsSelectData)
+                        @foreach (var region in regions)
                         {
                             <MudSelectItem T="string" Value="@(region.RegionId.ToString())">@(region.RegionName)</MudSelectItem>
                         }
@@ -122,18 +113,18 @@
                 </MudItem>
                 <MudItem>
                     <MudSelect T="string" Label="Subregion" MaxHeight="500" SelectedValuesChanged="@(() => SelectionsChanged("subregion"))" @bind-Value="subRegionSelected" Style="width:240px;">
-                        @foreach (var subregion in subRegionsSelectData)
+                        @foreach (var subregion in subRegionsList)
                         {
                             <MudSelectItem T="string" Value="@(subregion.SubRegionId.ToString())">@(subregion.SubRegionName)</MudSelectItem>
                         }
                     </MudSelect>
                 </MudItem>
                 <MudItem>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddCountryByGroup">Add</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddCountryByGroup" Disabled="@isCountryGroupAddButtonDisabled">Add</MudButton>
                 </MudItem>
             </MudGrid>
         </MudItem>
-        @if (values.Count > 0)
+        @if (countriesSelected.Count > 0)
         {
          <MudItem Style="margin-bottom:25px;">
             <MudGrid>
@@ -142,55 +133,20 @@
                 </MudItem>
                 <MudItem>
                     <MudChipSet AllClosable="true" OnClose="Closed">
-                        @foreach (var value in values)
+                        @foreach (var value in countriesSelected)
                         {
-                            <MudChip Text="@value"></MudChip>
+                            <MudChip Text="@(value.CountryName)"></MudChip>
                         }
                     </MudChipSet>
                 </MudItem>
             </MudGrid>
         </MudItem>
         }
-        @if (platformMappings.Count > 0)
+        @if (countryToAuditDetails.Count > 0)
         {
          <MudItem Style="margin-bottom:25px;">
             <MudText Typo="Typo.h4">Platform:</MudText>
-            @*<MudGrid>
-                <MudItem>
-                    <MudSelect T="string" Label="Platform" Required="true" RequiredError="Status is required!">
-                        <MudSelectItem Value="@("Conventional Seeds")" />
-                        <MudSelectItem Value="@("Crop Protection")" />
-                        <MudSelectItem Value="@("Traited Seeds")" />
-                    </MudSelect>
-                </MudItem>
-                <MudItem>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AddCountryByGroup">Apply to Selected</MudButton>
-                </MudItem>
-            </MudGrid>
-            @foreach (var country in values)
-            {
-            <MudGrid Style="border:5px dotted black">
-                <MudItem Style="border:5px dotted red">
-                    <MudCheckBox @bind-Checked="@Basic_CheckBox1" Label="@country"></MudCheckBox>
-                </MudItem>
-            </MudGrid>
-            }
-            @foreach (var country in platformMappings)
-            {
-            <MudGrid Style="border:5px dotted black">
-                <MudText>@(country.CountryName)</MudText>
-                <MudItem Style="border:5px dotted red">
-                    <MudCheckBox @bind-Checked="@country.IsConventional"></MudCheckBox>
-                </MudItem>
-                <MudItem Style="border:5px dotted red">
-                    <MudCheckBox @bind-Checked="@country.IsCropProtection"></MudCheckBox>
-                </MudItem>
-                <MudItem Style="border:5px dotted red">
-                    <MudCheckBox @bind-Checked="@country.IsConventional"></MudCheckBox>
-                </MudItem>
-            </MudGrid>
-            }*@
-            <MudTable Items="@platformMappings" Hover="true" Breakpoint="Breakpoint.Sm">
+            <MudTable Items="@countryToAuditDetails" Hover="true" Breakpoint="Breakpoint.Sm">
                 <HeaderContent>
                     <MudTh>Country</MudTh>
                     <MudTh>Conventional</MudTh>
@@ -199,67 +155,19 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Country">@context.CountryName</MudTd>
-                    <MudTd DataLabel="Conventional"><MudCheckBox @bind-Checked="@context.IsConventional"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Conventional"><MudCheckBox @bind-Checked="@context.IsConventionalSeeds"></MudCheckBox></MudTd>
                     <MudTd DataLabel="Crop Protection"><MudCheckBox @bind-Checked="@context.IsCropProtection"></MudCheckBox></MudTd>
-                    <MudTd DataLabel="Traited"><MudCheckBox @bind-Checked="@context.IsTraited"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Traited"><MudCheckBox @bind-Checked="@context.IsTraitedSeeds"></MudCheckBox></MudTd>
                 </RowTemplate>
-                @*<ChildRowContent>
-                    @if (context.ShowAdminPanel)
-                        {
-                        <MudTr>
-                            <MudTd>
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="(() => EditLocation(context.LocationId))">Edit</MudButton>
-                                <MudButton Variant="Variant.Filled" Color="Color.Error" @onclick="(() => DeleteLocation(context.LocationId))">Delete</MudButton>
-                            </MudTd>
-                        </MudTr>
-                        }
-                </ChildRowContent>*@
             </MudTable>
         </MudItem>
         }
-         @*@if (platformMappings.Count > 0)
+        @if (countriesSelected.Count > 0)
         {
         <MudItem Style="margin-bottom:25px;">
-            <MudText Typo="Typo.h4">Findings:</MudText>
-            <MudSlider @bind-Value="value1" Min="0" Max="100" Style="width:500px;">Score: @value1.ToString()</MudSlider>
-            <MudGrid>
-                <MudItem xs="12" sm="6" md="6">
-                    <MudTextField T="string" Label="Overall Findings" Variant="Variant.Outlined" Lines="5" />
-                </MudItem>
-            </MudGrid>
-
-            @foreach (var platform in platformMappings)
-            {
-                if(platform.IsConventional)
-                {
-                    var label = platform.CountryName + " Conventional Findings";
-                    <MudGrid>
-                        <MudItem xs="12" sm="6" md="6">
-                            <MudTextField T="string" Label="@(label)" Variant="Variant.Outlined" Lines="5" />
-                        </MudItem>
-                    </MudGrid>
-                }
-                if (platform.IsCropProtection)
-                {
-                    var label = platform.CountryName + " Crop Protection Findings";
-                    <MudGrid>
-                        <MudItem xs="12" sm="6" md="6">
-                            <MudTextField T="string" Label="@(label)" Variant="Variant.Outlined" Lines="5" />
-                        </MudItem>
-                    </MudGrid>
-                }
-                if (platform.IsTraited)
-                {
-                    var label = platform.CountryName + " Traited Findings";
-                    <MudGrid>
-                        <MudItem xs="12" sm="6" md="6">
-                            <MudTextField T="string" Label="@(label)" Variant="Variant.Outlined" Lines="5" />
-                        </MudItem>
-                    </MudGrid>
-                }
-            }
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="SaveAudit">Save Audit</MudButton>
         </MudItem>
-        }*@       
+        }
     </MudForm>
     }
     </MudGrid>
@@ -269,252 +177,362 @@
     private int currentYear = DateTime.Now.Year;
     private int selectedYear;
     private int value1;
+    private string duration;
     DateTime? date = DateTime.Today;
 
     MudForm form;
     bool success;
     string[] errors = { };
 
+    IList<Country> countries = new List<Country>();
     IList<Region> regions = new List<Region>();
-    IList<Region> regionsSelectData = new List<Region>();
     IList<SubRegion> subRegions = new List<SubRegion>();
-    IList<SubRegion> subRegionsSelectData = new List<SubRegion>();
-    IList<CountryAlt> countries = new List<CountryAlt>();
-    IList<RegionMappingAlt> regionMappingAlts = new List<RegionMappingAlt>();
-    List<string> values = new List<string>();
-    IList<Country> allCountries = new List<Country>();
-    IList<Country> countriesAdded = new List<Country>();
-    IList<PlatformMapping> platformMappings = new List<PlatformMapping>();
-    List<string> auditors = new List<string>();
-    string newAuditor = "";
-    List<string> contacts = new List<string>();
-    string newContact = "";
+
+    IList<Country> countriesList = new List<Country>();
+    IList<Country> countriesSelected = new List<Country>();
+    IList<SubRegion> subRegionsList = new List<SubRegion>();
+
+    IList<CommercialUnit> commercialUnits = new List<CommercialUnit>();
+    IList<CountryMapping> countryMappings = new List<CountryMapping>();
+
+    //IList<CountryToAudit> countryToAudits = new List<CountryToAudit>();
+    IList<CountryToAuditDetails> countryToAuditDetails = new List<CountryToAuditDetails>();
 
     private string regionSelected;
     private string subRegionSelected;
     private string countrySelected;
+    private string primaryAuditorSelected;
+    private string auditorSelected;
+    private string contactSelected;
+
+    IList<Person> people = new List<Person>();
+    IList<Person> primaryAuditor = new List<Person>();
+    IList<Person> auditorsList = new List<Person>();
+    IList<Person> auditorsSelected = new List<Person>();
+    IList<Person> contactsList = new List<Person>();
+    IList<Person> contactsSelected = new List<Person>();
 
     public bool Basic_CheckBox1 { get; set; } = true;
+    public bool isCountryAddButtonDisabled = true;
+    public bool isCountryGroupAddButtonDisabled = true;
+
+    IList<Audit> audits = new List<Audit>();
 
     protected override async Task OnInitializedAsync()
     {
         selectedYear = currentYear;
-        allCountries = await Http.GetFromJsonAsync<Country[]>("api/Countries");
-        await FillCountry();
+        people = await Http.GetFromJsonAsync<Person[]>("api/Person");
+        primaryAuditor = auditorsList = contactsList = people;
+
+        countriesList = countries = await Http.GetFromJsonAsync<Country[]>("api/Countries");
+        regions = await Http.GetFromJsonAsync<Region[]>("api/Regions");
+        subRegionsList = subRegions = await Http.GetFromJsonAsync<SubRegion[]>("api/SubRegions");
+
+        commercialUnits = await Http.GetFromJsonAsync<CommercialUnit[]>("api/CommercialUnits");
+        countryMappings = await Http.GetFromJsonAsync<CountryMapping[]>("api/CountryMappings");
+
         isLoading = false;
     }
 
-    //public void Closed(MudChip chip) => values.Remove(chip.Text);
-
-    public void Closed(MudChip chip) {
-        values.Remove(chip.Text);
-        //foreach (var c in countriesAdded)
-        //{
-        //    if (c.CountryName == chip.Text)
-        //    {
-        //        countriesAdded.Remove(c);
-        //    }
-        //}
-        var test = platformMappings;
-        platformMappings = platformMappings.Where(x => x.CountryName != chip.Text).ToList();
-        foreach (var c in platformMappings)
+    private async Task<IEnumerable<string>> PrimaryAuditorSearch(string value)
+    {
+        if (string.IsNullOrEmpty(value))
         {
-            if (c.CountryName == chip.Text)
-            {
-                platformMappings.Remove(c);
-            }
+            return primaryAuditor
+                .OrderBy(p => p.Name)
+                .Select(p => p.Name)
+                .ToList();
+        }
+        else
+        {
+            return primaryAuditor
+                .Where(p => p.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                .OrderBy(p => p.Name)
+                .Select(p => p.Name)
+                .ToList(); ;
+        }
+    }
+
+    private async Task<IEnumerable<string>> AuditorSearch(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return auditorsList
+                .OrderBy(p => p.Name)
+                .Select(p => p.Name)
+                .ToList();
+        }
+        else
+        {
+            return auditorsList
+                .Where(p => p.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                .OrderBy(p => p.Name)
+                .Select(p => p.Name)
+                .ToList(); ;
         }
     }
 
     private async void AddAuditor()
     {
-        if (newAuditor != "")
+        if (auditorSelected != null)
         {
-            auditors.Add(newAuditor);
-            newAuditor = "";
+            var selected = auditorsList.Where(p => p.Name == auditorSelected).First();
+            auditorsSelected.Add(selected);
+            auditorsList = auditorsList.Where(x => x.PersonId != selected.PersonId).ToList();
+            auditorSelected = null;
         }
     }
 
     public void RemoveAuditor(MudChip chip)
     {
-        auditors.Remove(chip.Text);
+        var selected = auditorsSelected.Where(p => p.Name == chip.Text).First();
+        auditorsList.Add(selected);
+        auditorsSelected = auditorsSelected.Where(x => x.PersonId != selected.PersonId).ToList();
+    }
+
+    private async Task<IEnumerable<string>> ContactSearch(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return contactsList
+                .OrderBy(p => p.Name)
+                .Select(p => p.Name)
+                .ToList();
+        }
+        else
+        {
+            return contactsList
+                .Where(p => p.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                .OrderBy(p => p.Name)
+                .Select(p => p.Name)
+                .ToList(); ;
+        }
     }
 
     private async void AddContact()
     {
-        if (newContact != "")
+        if (contactSelected != null)
         {
-            contacts.Add(newContact);
-            newContact = "";
+            var selected = contactsList.Where(p => p.Name == contactSelected).First();
+            contactsSelected.Add(selected);
+            contactsList = contactsList.Where(x => x.PersonId != selected.PersonId).ToList();
+            contactSelected = null;
         }
     }
 
     public void RemoveContact(MudChip chip)
     {
-        contacts.Remove(chip.Text);
+        var selected = contactsSelected.Where(p => p.Name == chip.Text).First();
+        contactsList.Add(selected);
+        contactsSelected = contactsSelected.Where(x => x.PersonId != selected.PersonId).ToList();
+    }
+
+    private async void CountrySelectionChanged()
+    {
+        if (countrySelected != null)
+        {
+            isCountryAddButtonDisabled = false;
+        } else
+        {
+            isCountryAddButtonDisabled = true;
+        }
     }
 
     private async void SelectionsChanged(string group)
     {
+        if (regionSelected != null || subRegionSelected != null)
+        {
+            isCountryGroupAddButtonDisabled = false;
+        }
+
         if (group == "region")
         {
-            if (subRegionSelected != "")
+            if (subRegionSelected != null && subRegionSelected != "")
             {
-                subRegionSelected = "";
+                subRegionSelected = null;
             }
 
-            if (regionSelected == "1")
+            var subregionIds = countryMappings
+                .Where(x => x.RegionId == Int32.Parse(regionSelected))
+                .GroupBy(x => new { x.SubRegionId, x.RegionId })
+                .Select(x => new { x.Key.SubRegionId })
+                .OrderBy(x => x.SubRegionId)
+                .ToList();
+
+            subRegionsList = new List<SubRegion>();
+            foreach (var item in subregionIds)
             {
-                subRegionsSelectData = subRegions.Where(x => x.SubRegionId < 3).ToList();
-            }
-            else if (regionSelected == "2")
-            {
-                subRegionsSelectData = subRegions.Where(x => x.SubRegionId > 2).ToList();
-            }
-            else
-            {
-                //error
+                var selected = subRegions.Where(x => x.SubRegionId == item.SubRegionId).First();
+                subRegionsList.Add(selected);
             }
         }
         else if (group == "subregion")
         {
-            if (Int32.Parse(subRegionSelected) < 3)
+            if (regionSelected == null)
             {
-                regionSelected = "1";
-            }
-            else if (Int32.Parse(subRegionSelected) > 2)
-            {
-                regionSelected = "2";
-            }
-            else
-            {
-                //error
+                var regionId = countryMappings.Where(x => x.SubRegionId == Int32.Parse(subRegionSelected)).First().RegionId;
+                regionSelected = regions.Where(x => x.RegionId == regionId).First().RegionId.ToString();
             }
         }
         else
         {
             //error
         }
-        //countrySelected = countries.Where(x => x.CountryName == countryNameSelected).FirstOrDefault();
-        //regionSelected = regions.Where(x => x.RegionName == regionNameSelected).FirstOrDefault();
-        //subRegionSelected = subRegions.Where(x => x.SubRegionName == subRegionNameSelected).FirstOrDefault();
     }
 
     private async void AddCountry()
     {
         if (countrySelected != "")
         {
-            values.Add(countrySelected);
-
-            foreach (var c in allCountries)
-            {
-                if (c.CountryName == countrySelected)
-                {
-                    countriesAdded.Add(c);
-                    platformMappings.Add(new PlatformMapping { CountryName = c.CountryName });
-                }
-            }
+            var selected = countriesList.Where(c => c.CountryName == countrySelected).First();
+            countriesSelected.Add(selected);
+            countriesList = countriesList.Where(x => x.CountryId != selected.CountryId).ToList();
+            countrySelected = null;
+            countryToAuditDetails.Add(new CountryToAuditDetails {
+                CountryToAuditId =  countryToAuditDetails.Count() + 1,
+                CountryId = selected.CountryId,
+                CountryName = selected.CountryName,
+                IsConventionalSeeds = false,
+                IsCropProtection = false, IsTraitedSeeds = false
+            });
+            isCountryAddButtonDisabled = true;
         }
     }
 
     private async void AddCountryByGroup()
     {
-        if (subRegionSelected == "")
-        {
-            var regionCountries = countries.Where(x => x.RegionId == Int32.Parse(regionSelected)).ToList();
-            foreach (var rC in regionCountries)
-            {
-                values.Add(rC.CountryName);
+        isCountryGroupAddButtonDisabled = true;
+        var countryMappingsSelected = new List<CountryMapping>();
 
-                foreach (var c in allCountries)
-                {
-                    if (c.CountryName == rC.CountryName)
-                    {
-                        countriesAdded.Add(c);
-                        platformMappings.Add(new PlatformMapping { CountryName = c.CountryName });
-                    }
-                }
-            }
+        if (subRegionSelected == null)
+        {
+            var test = regionSelected;
+            var test2 = subRegionSelected;
+
+            // add based on region
+            countryMappingsSelected = countryMappings
+                .Where(x => x.RegionId == Int32.Parse(regionSelected))
+                .ToList();
         }
         else
         {
-            var regionCountries = countries.Where(x => x.SubRegionId == Int32.Parse(subRegionSelected)).ToList();
-            foreach (var rC in regionCountries)
-            {
-                values.Add(rC.CountryName);
+            var test = regionSelected;
+            var test2 = subRegionSelected;
 
-                foreach (var c in allCountries)
+            //add based on subregion
+            countryMappingsSelected = countryMappings
+                .Where(x => x.SubRegionId == Int32.Parse(subRegionSelected))
+                .ToList();
+        }
+
+        foreach (var item in countryMappingsSelected)
+        {
+            var selected = countriesList.Where(c => c.CountryId == item.CountryId).FirstOrDefault();
+            if (selected != null)
+            {
+                countriesSelected.Add(selected);
+                countriesList = countriesList.Where(x => x.CountryId != selected.CountryId).ToList();
+                countryToAuditDetails.Add(new CountryToAuditDetails
                 {
-                    if (c.CountryName == rC.CountryName)
-                    {
-                        countriesAdded.Add(c);
-                        platformMappings.Add(new PlatformMapping { CountryName = c.CountryName });
-                    }
-                }
+                    CountryToAuditId = countryToAuditDetails.Count() + 1,
+                    CountryId = selected.CountryId,
+                    CountryName = selected.CountryName,
+                    IsConventionalSeeds = false,
+                    IsCropProtection = false,
+                    IsTraitedSeeds = false
+                });
             }
         }
+
+        regionSelected = null;
+        subRegionSelected = null;
     }
 
-    private async Task FillCountry()
-    {
-        regions.Add(new Region { RegionId = 1, RegionName = "LATAM" });
-        regions.Add(new Region { RegionId = 2, RegionName = "EMEA" });
-        subRegions.Add(new SubRegion { SubRegionId = 1, SubRegionName = "Central America" });
-        subRegions.Add(new SubRegion { SubRegionId = 2, SubRegionName = "South America" });
-        subRegions.Add(new SubRegion { SubRegionId = 3, SubRegionName = "UK" });
-        subRegions.Add(new SubRegion { SubRegionId = 4, SubRegionName = "Russia" });
-        subRegions.Add(new SubRegion { SubRegionId = 5, SubRegionName = "Africa" });
-        countries.Add(new CountryAlt { CountryId = 1, CountryName = "Mexico", RegionId = 1, SubRegionId = 1 });
-        countries.Add(new CountryAlt { CountryId = 2, CountryName = "Costa Rica", RegionId = 1, SubRegionId = 1 });
-        countries.Add(new CountryAlt { CountryId = 3, CountryName = "Panama", RegionId = 1, SubRegionId = 1 });
-        countries.Add(new CountryAlt { CountryId = 4, CountryName = "Brazil", RegionId = 1, SubRegionId = 2 });
-        countries.Add(new CountryAlt { CountryId = 5, CountryName = "Chile", RegionId = 1, SubRegionId = 2 });
-        countries.Add(new CountryAlt { CountryId = 6, CountryName = "Peru", RegionId = 1, SubRegionId = 2 });
-        countries.Add(new CountryAlt { CountryId = 7, CountryName = "England", RegionId = 2, SubRegionId = 3 });
-        countries.Add(new CountryAlt { CountryId = 8, CountryName = "Scotland", RegionId = 2, SubRegionId = 3 });
-        countries.Add(new CountryAlt { CountryId = 9, CountryName = "Wales", RegionId = 2, SubRegionId = 3 });
-        countries.Add(new CountryAlt { CountryId = 10, CountryName = "Russia", RegionId = 2, SubRegionId = 4 });
-        countries.Add(new CountryAlt { CountryId = 11, CountryName = "Chad", RegionId = 2, SubRegionId = 5 });
-        countries.Add(new CountryAlt { CountryId = 12, CountryName = "Egypt", RegionId = 2, SubRegionId = 5 });
-        countries.Add(new CountryAlt { CountryId = 13, CountryName = "South Africa", RegionId = 2, SubRegionId = 5 });
-        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 1, RegionId = 1, SubRegionId = 1 });
-        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 2, RegionId = 1, SubRegionId = 2 });
-        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 3, RegionId = 2, SubRegionId = 3 });
-        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 4, RegionId = 2, SubRegionId = 4 });
-        regionMappingAlts.Add(new RegionMappingAlt { RegionMappingId = 5, RegionId = 2, SubRegionId = 5 });
+    //public void Closed(MudChip chip) => values.Remove(chip.Text);
 
-        subRegionsSelectData = subRegions;
-        regionsSelectData = regions;
+    public void Closed(MudChip chip)
+    {
+        var selected = countries.Where(c => c.CountryName == chip.Text).First();
+        countriesList.Add(selected);
+        countriesList = countriesList.OrderBy(x => x.CountryName).ToList();
+        countriesSelected = countriesSelected.Where(x => x.CountryId != selected.CountryId).ToList();
+        countryToAuditDetails = countryToAuditDetails.Where(x => x.CountryId != selected.CountryId).ToList();
     }
 
-    public class CountryAlt
+    public async void SaveAudit()
     {
+        Audit audit = new Audit
+        {
+            Status = "Pre-Audit",
+            Duration = Int32.Parse(duration),
+            Year = date.Value.Year,
+            AuditDate = date.Value
+        };
+
+        using var auditResponse = await Http.PostAsJsonAsync<Audit>("api/Audits", audit);
+        var auditCreated = await auditResponse.Content.ReadFromJsonAsync<Audit>();
+        var newAuditId = auditCreated.AuditId;
+
+        IList<PersonMapping> auditPeople = new List<PersonMapping>();
+        var test9 = primaryAuditorSelected;
+        var test11 = people.Where(p => p.Name == primaryAuditorSelected).First().PersonId;
+
+        //primaryAuditor
+        await Http.PostAsJsonAsync<PersonMapping>("api/PersonMappings", new PersonMapping
+        {
+            AuditId = newAuditId,
+            PersonId = people.Where(p => p.Name == primaryAuditorSelected).First().PersonId,
+            IsPrimary = true,
+            IsAuditor = false,
+            IsContact = false
+        });
+
+        foreach(var auditor in auditorsSelected)
+        {
+            await Http.PostAsJsonAsync<PersonMapping>("api/PersonMappings", new PersonMapping
+            {
+                AuditId = newAuditId,
+                PersonId = auditor.PersonId,
+                IsPrimary = false,
+                IsAuditor = true,
+                IsContact = false
+            });
+        }
+
+        foreach(var contact in contactsSelected)
+        {
+            await Http.PostAsJsonAsync<PersonMapping>("api/PersonMappings", new PersonMapping
+            {
+                AuditId = newAuditId,
+                PersonId = contact.PersonId,
+                IsPrimary = false,
+                IsAuditor = false,
+                IsContact = true
+            });
+        }
+
+        foreach(var item in countryToAuditDetails)
+        {
+            await Http.PostAsJsonAsync<MudBlazorFromScratch.Shared.CountryToAudit>("api/CountryToAudits", new MudBlazorFromScratch.Shared.CountryToAudit
+            {
+                CountryId = item.CountryId,
+                AuditId = newAuditId,
+                IsConventionalSeeds = item.IsConventionalSeeds,
+                IsCropProtection = item.IsCropProtection,
+                IsTraitedSeeds = item.IsTraitedSeeds
+            });
+        }
+
+        NavigationManager.NavigateTo("/audit");
+    }
+
+    public class CountryToAuditDetails
+    {
+        public int CountryToAuditId { get; set; }
         public int CountryId { get; set; }
         public string CountryName { get; set; }
-        public int RegionId { get; set; }
-        public int SubRegionId { get; set; }
+        public bool IsConventionalSeeds { get; set; }
+        public bool IsCropProtection { get; set; }
+        public bool IsTraitedSeeds { get; set; }
     }
-
-    public class RegionMappingAlt
-    {
-        public int RegionMappingId { get; set; }
-        public int RegionId { get; set; }
-        public int SubRegionId { get; set; }
-    }
-
-    public class CountryPlatform
-    {
-        public string CountryName { get; set; }
-        public IList<string> Platforms { get; set; }
-        public bool IsSelected { get; set; } = false;
-    }
-
-    public class PlatformMapping
-    {
-        public string CountryName { get; set; }
-        public bool IsConventional { get; set; } = false;
-        public bool IsCropProtection { get; set; } = false;
-        public bool IsTraited { get; set; } = false;
-    }
-
 }

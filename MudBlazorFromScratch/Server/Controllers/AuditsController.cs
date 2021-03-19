@@ -28,6 +28,62 @@ namespace MudBlazorFromScratch.Server.Controllers
             return await _context.Audit.ToListAsync();
         }
 
+        // GET: api/Audits/Details
+        [HttpGet("Details")]
+        public async Task<ActionResult<IEnumerable<AuditDetail>>> GetAuditDetails()
+        {
+            IList<AuditDetail> auditDetails = new List<AuditDetail>();
+            //IList<CountryToAudit> countryToAudits = new List<CountryToAudit>();
+            //IList<PersonMapping> personMappings = new List<PersonMapping>();
+            
+
+            var audits = await _context.Audit.ToListAsync();
+
+            foreach(var audit in audits)
+            {
+                var auditDetail = new AuditDetail
+                {
+                    AuditId = audit.AuditId,
+                    Status = audit.Status,
+                    Duration = audit.Duration,
+                    Year = audit.Year,
+                    AuditDate = audit.AuditDate
+                };
+
+                IList<CountryToAudit> countryToAudits = await _context.CountryToAudit.Where(x => x.AuditId == audit.AuditId).ToListAsync();
+                IList<PersonMapping> personMappings = await _context.PersonMapping.Where(x => x.AuditId == audit.AuditId && x.IsPrimary == true).ToListAsync();
+                
+                IList<Country> countries = new List<Country>();
+                IList<Person> people = new List<Person>();
+
+                var countryNames = "";
+
+                foreach (var countryToAudit in countryToAudits)
+                {
+                    var country = await _context.Country.Where(x => x.CountryId == countryToAudit.CountryId).FirstOrDefaultAsync();
+                    countryNames = countryNames + country.CountryName + "; ";
+                    countries.Add(country);
+                }
+
+                foreach (var personMapping in personMappings)
+                {
+                    var person = await _context.Person.Where(x => x.PersonId == personMapping.PersonId).FirstOrDefaultAsync();
+                    people.Add(person);
+                }
+
+                auditDetail.CountryToAudits = countryToAudits;
+                auditDetail.Countries = countries;
+                auditDetail.CountryNames = countryNames;
+                auditDetail.PersonMappings = personMappings;
+                auditDetail.People = people;
+
+                auditDetails.Add(auditDetail);
+            }
+
+
+            return auditDetails.ToList();
+        }
+
         // GET: api/Audits/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Audit>> GetAudit(int id)

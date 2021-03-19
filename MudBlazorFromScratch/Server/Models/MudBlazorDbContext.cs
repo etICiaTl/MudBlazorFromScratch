@@ -21,5 +21,10 @@ namespace MudBlazorFromScratch.Server.Models
         public DbSet<MudBlazorFromScratch.Shared.Audit> Audit { get; set; }
         public DbSet<MudBlazorFromScratch.Shared.AuditCountryPlatform> AuditCountryPlatform { get; set; }
         public DbSet<MudBlazorFromScratch.Shared.AuditFinding> AuditFinding { get; set; }
+        public DbSet<CommercialUnit> CommercialUnit { get; set; }
+        public DbSet<CountryMapping> CountryMapping { get; set; }
+        public DbSet<Person> Person { get; set; }
+        public DbSet<CountryToAudit> CountryToAudit { get; set; }
+        public DbSet<PersonMapping> PersonMapping { get; set; }
     }
 }
